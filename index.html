@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#ffcc00" />
+  <link rel="manifest" href="manifest.json" />
+  <title>Belajar Ceria</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header>
+    <h1>🎉 Belajar Ceria! 🎉</h1>
+    <p>Belajar sambil bermain untuk anak-anak!</p>
+  </header>
+  <main class="container">
+    <section>
+      <h2>🔤 Belajar Huruf</h2>
+      <div class="grid">
+        <button onclick="playSound('a')">A</button>
+        <button onclick="playSound('b')">B</button>
+        <button onclick="playSound('c')">C</button>
+      </div>
+    </section>
+    <section>
+      <h2>🔢 Belajar Angka</h2>
+      <div class="grid">
+        <button onclick="playSound('1')">1</button>
+        <button onclick="playSound('2')">2</button>
+        <button onclick="playSound('3')">3</button>
+      </div>
+    </section>
+    <section>
+      <h2>🎮 Game Edukatif</h2>
+      <a class="link-btn" href="games/color-match.html">Cocokkan Warna</a>
+    </section>
+    <section>
+      <h2>📖 Cerita Bergambar</h2>
+      <a class="link-btn" href="stories/cerita1.html">Si Kancil dan Buaya</a>
+    </section>
+    <section>
+      <h2>🎨 Mewarnai & Menggambar</h2>
+      <a class="link-btn" href="coloring/mewarnai.html">Mulai Mewarnai</a>
+    </section>
+  </main>
+  <footer>
+    <p>&copy; 2025 Belajar Ceria</p>
+  </footer>
+  <script src="app.js"></script>
+  <script>
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('sw.js').then(() => {
+        console.log('Service Worker Registered');
+      });
+    }
+  </script>
+</body>
+</html>
