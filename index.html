@@ -7,6 +7,12 @@
   <link rel="manifest" href="manifest.json" />
   <title>Belajar Ceria</title>
   <link rel="stylesheet" href="style.css" />
+
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Ceria">
+  <link rel="apple-touch-icon" href="icon.png"> <meta name="mobile-web-app-capable" content="yes">
+
 </head>
 <body>
   <header>
@@ -34,10 +40,15 @@
       <h2>🎮 Game Edukatif</h2>
       <a class="link-btn" href="games/color-match.html">Cocokkan Warna</a>
     </section>
+    
     <section>
       <h2>📖 Cerita Bergambar</h2>
-      <a class="link-btn" href="stories/cerita1.html">Si Kancil dan Buaya</a>
+      <div class="story-menu grid"> <a class="link-btn" href="stories/cerita1.html">Si Kancil dan Buaya</a>
+        <a class="link-btn" href="stories/cerita2.html">Persahabatan Kura-kura dan Monyet</a>
+        <a class="link-btn" href="stories/cerita3.html">Asal Mula Danau Toba</a>
+        </div>
     </section>
+    
     <section>
       <h2>🎨 Mewarnai & Menggambar</h2>
       <a class="link-btn" href="coloring/mewarnai.html">Mulai Mewarnai</a>
@@ -47,12 +58,5 @@
     <p>&copy; 2025 Belajar Ceria</p>
   </footer>
   <script src="app.js"></script>
-  <script>
-    if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('sw.js').then(() => {
-        console.log('Service Worker Registered');
-      });
-    }
-  </script>
 </body>
 </html>

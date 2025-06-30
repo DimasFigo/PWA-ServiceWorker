@@ -5,16 +5,29 @@ const urlsToCache = [
   './style.css',
   './app.js',
   './manifest.json',
+  './icon.png',
+
+  // Angka dan Huruf
   './sounds/a.mp3',
   './sounds/b.mp3',
   './sounds/c.mp3',
   './sounds/1.mp3',
   './sounds/2.mp3',
   './sounds/3.mp3',
-  './icon.png',
+
+
   './games/color-match.html',
+  './coloring/mewarnai.html',
+
+  // Cerita
   './stories/cerita1.html',
-  './coloring/mewarnai.html'
+  './stories/cerita2.html', 
+  './stories/cerita3.html',
+  './images/kancil-buaya1.png',
+  './images/kancil-buaya2.png',
+  './images/kancil-buaya3.png',
+
+
 ];
 
 self.addEventListener('install', event => {

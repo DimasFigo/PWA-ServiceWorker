@@ -5,6 +5,87 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Halaman Mewarnai</title>
   <link rel="stylesheet" href="../style.css">
+  <style>
+    /* CSS Tambahan untuk Halaman Mewarnai */
+    .coloring-area {
+      text-align: center;
+      margin-top: 20px;
+    }
+
+    canvas {
+      border: 2px solid #e91e63; /* Warna pink gelap dari tema */
+      background-color: #fff;
+      cursor: crosshair; /* Kursor berubah jadi tanda plus */
+      display: block; /* Menghilangkan margin bawah otomatis */
+      margin: 0 auto; /* Tengah secara horizontal */
+      touch-action: none; /* Mencegah scrolling pada perangkat sentuh saat menggambar */
+    }
+
+    .color-palette {
+      margin-top: 15px;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 10px;
+    }
+
+    .color-box {
+      width: 40px;
+      height: 40px;
+      border: 2px solid #ccc;
+      border-radius: 50%; /* Bentuk lingkaran */
+      cursor: pointer;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      transition: transform 0.1s ease, border-color 0.1s ease;
+    }
+
+    .color-box:hover {
+      transform: scale(1.1);
+    }
+
+    .color-box.active {
+      border-color: #007bff; /* Warna biru saat aktif */
+      box-shadow: 0 0 0 4px #007bff; /* Border biru lebih tebal */
+    }
+
+    /* Gaya untuk tombol aksi (Clear, Save) */
+    .action-buttons {
+      margin-top: 20px;
+      display: flex;
+      justify-content: center;
+      gap: 15px;
+    }
+
+    .action-buttons button {
+      padding: 10px 20px;
+      font-size: 1.1em;
+      background-color: #4CAF50; /* Hijau */
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: background-color 0.2s;
+    }
+
+    .action-buttons button:hover {
+      background-color: #45a049;
+    }
+
+    .action-buttons button.clear {
+      background-color: #f44336; /* Merah untuk Clear */
+    }
+    .action-buttons button.clear:hover {
+      background-color: #da190b;
+    }
+
+    .action-buttons button.save {
+      background-color: #007bff; /* Biru untuk Save */
+    }
+    .action-buttons button.save:hover {
+      background-color: #0056b3;
+    }
+
+  </style>
 </head>
 <body>
   <header>
@@ -12,8 +93,164 @@
     <p>Mulai mewarnai bentuk-bentuk seru!</p>
   </header>
   <main class="container">
-    <p>(Fitur kanvas mewarnai sedang dikembangkan)</p>
+    <div class="coloring-area">
+      <canvas id="drawingCanvas" width="400" height="300"></canvas>
+      
+      <div class="color-palette" id="colorPalette">
+        </div>
+
+      <div class="action-buttons">
+        <button class="clear" id="clearCanvasBtn">Bersihkan</button>
+        <button class="save" id="saveImageBtn">Simpan Gambar</button>
+      </div>
+    </div>
+
     <a class="link-btn" href="../index.html">⬅️ Kembali ke Beranda</a>
   </main>
+
+  <script>
+    const canvas = document.getElementById('drawingCanvas');
+    const ctx = canvas.getContext('2d');
+    const colorPalette = document.getElementById('colorPalette');
+    const clearButton = document.getElementById('clearCanvasBtn');
+    const saveButton = document.getElementById('saveImageBtn');
+
+    let isDrawing = false;
+    let currentColor = '#000000'; // Default warna hitam
+    let lastX = 0;
+    let lastY = 0;
+
+    // Daftar warna yang tersedia
+    const colors = [
+      '#FF0000', // Merah
+      '#0000FF', // Biru
+      '#FFFF00', // Kuning
+      '#008000', // Hijau
+      '#FFA500', // Oranye
+      '#800080', // Ungu
+      '#FFC0CB', // Pink
+      '#A52A2A', // Coklat
+      '#FFFFFF', // Putih (untuk menghapus)
+      '#000000'  // Hitam
+    ];
+
+    // --- Fungsi Inisialisasi ---
+    function initCanvas() {
+      // Menggambar bentuk dasar (misal: rumah sederhana)
+      drawHouse();
+      
+      // Menggambar palet warna
+      colors.forEach(color => {
+        const colorBox = document.createElement('div');
+        colorBox.classList.add('color-box');
+        colorBox.style.backgroundColor = color;
+        colorBox.dataset.color = color; // Simpan warna sebagai data
+        colorBox.addEventListener('click', () => selectColor(colorBox, color));
+        colorPalette.appendChild(colorBox);
+      });
+      // Pilih warna default (hitam) saat awal
+      const defaultColorBox = colorPalette.querySelector(`[data-color="${currentColor}"]`);
+      if (defaultColorBox) {
+        defaultColorBox.classList.add('active');
+      }
+    }
+
+    // --- Fungsi Menggambar Bentuk Dasar ---
+    function drawHouse() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height); // Bersihkan kanvas
+        ctx.strokeStyle = '#333'; // Garis gelap
+        ctx.lineWidth = 2;
+
+        // Badan rumah
+        ctx.strokeRect(100, 150, 200, 100);
+
+        // Atap
+        ctx.beginPath();
+        ctx.moveTo(100, 150);
+        ctx.lineTo(200, 80);
+        ctx.lineTo(300, 150);
+        ctx.closePath();
+        ctx.stroke();
+
+        // Pintu
+        ctx.strokeRect(170, 200, 60, 50);
+
+        // Jendela
+        ctx.strokeRect(120, 165, 30, 30);
+        ctx.strokeRect(250, 165, 30, 30);
+    }
+
+    // --- Fungsi Memilih Warna ---
+    function selectColor(selectedColorBox, color) {
+      // Hapus kelas 'active' dari semua kotak warna
+      document.querySelectorAll('.color-box').forEach(box => {
+        box.classList.remove('active');
+      });
+      // Tambahkan kelas 'active' ke kotak warna yang dipilih
+      selectedColorBox.classList.add('active');
+      currentColor = color;
+      ctx.strokeStyle = currentColor; // Atur warna goresan
+      ctx.fillStyle = currentColor; // Atur warna isi (jika ingin mengisi)
+    }
+
+    // --- Fungsi Menggambar ---
+    function draw(e) {
+      if (!isDrawing) return; // Stop fungsi jika tidak sedang menggambar
+      
+      // Mendapatkan posisi mouse/sentuhan relatif terhadap kanvas
+      let x, y;
+      if (e.touches) { // Untuk sentuhan
+        const rect = canvas.getBoundingClientRect();
+        x = e.touches[0].clientX - rect.left;
+        y = e.touches[0].clientY - rect.top;
+      } else { // Untuk mouse
+        x = e.offsetX;
+        y = e.offsetY;
+      }
+
+      ctx.beginPath();
+      ctx.moveTo(lastX, lastY);
+      ctx.lineTo(x, y);
+      ctx.stroke();
+      [lastX, lastY] = [x, y];
+    }
+
+    // --- Event Listeners untuk Menggambar ---
+    canvas.addEventListener('mousedown', (e) => {
+      isDrawing = true;
+      [lastX, lastY] = [e.offsetX, e.offsetY];
+    });
+    canvas.addEventListener('mousemove', draw);
+    canvas.addEventListener('mouseup', () => isDrawing = false);
+    canvas.addEventListener('mouseout', () => isDrawing = false); // Berhenti menggambar jika kursor keluar kanvas
+
+    // Dukungan sentuhan untuk perangkat mobile
+    canvas.addEventListener('touchstart', (e) => {
+        isDrawing = true;
+        const rect = canvas.getBoundingClientRect();
+        lastX = e.touches[0].clientX - rect.left;
+        lastY = e.touches[0].clientY - rect.top;
+        e.preventDefault(); // Mencegah scrolling saat menyentuh kanvas
+    }, { passive: false }); // Membutuhkan passive: false untuk preventDefault
+    canvas.addEventListener('touchmove', draw, { passive: false });
+    canvas.addEventListener('touchend', () => isDrawing = false);
+    canvas.addEventListener('touchcancel', () => isDrawing = false);
+
+    // --- Fungsi Tombol Aksi ---
+    clearButton.addEventListener('click', drawHouse); // Bersihkan kanvas dan gambar ulang rumah
+
+    saveButton.addEventListener('click', () => {
+      const dataURL = canvas.toDataURL('image/png'); // Konversi kanvas ke gambar PNG
+      const link = document.createElement('a');
+      link.download = 'gambar-mewarnai-ceria.png'; // Nama file
+      link.href = dataURL;
+      document.body.appendChild(link);
+      link.click(); // Klik link secara programatis
+      document.body.removeChild(link);
+    });
+
+    // Inisialisasi saat halaman dimuat
+    initCanvas();
+  </script>
 </body>
 </html>

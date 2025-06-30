@@ -5,6 +5,97 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Game Cocokkan Warna</title>
   <link rel="stylesheet" href="../style.css">
+  <style>
+    /* CSS Tambahan untuk Game */
+    .color-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr); /* 2 kolom */
+      gap: 15px;
+      margin-top: 20px;
+      max-width: 400px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .color-button {
+      padding: 20px;
+      font-size: 1.5em;
+      font-weight: bold;
+      border: 3px solid #ccc;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: all 0.2s ease-in-out;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 80px; /* Tinggi minimum untuk button */
+    }
+
+    .color-button:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    }
+
+    .color-button.text {
+      background-color: #fff;
+      color: #333;
+    }
+
+    /* Warna untuk tombol warna */
+    .color-red { background-color: #FF0000; color: white; border-color: #CC0000; }
+    .color-blue { background-color: #0000FF; color: white; border-color: #0000CC; }
+    .color-yellow { background-color: #FFFF00; color: black; border-color: #CCCC00; }
+    .color-green { background-color: #008000; color: white; border-color: #006600; }
+    .color-purple { background-color: #800080; color: white; border-color: #660066; }
+    .color-orange { background-color: #FFA500; color: white; border-color: #CC8400; }
+
+    /* Gaya untuk tombol yang dipilih */
+    .color-button.selected {
+      border-color: #007bff; /* Warna border saat dipilih */
+      box-shadow: 0 0 0 4px #007bff;
+    }
+
+    /* Gaya untuk hasil */
+    .feedback-message {
+      font-size: 1.8em;
+      margin-top: 20px;
+      font-weight: bold;
+      text-align: center;
+      min-height: 50px; /* Ruang untuk pesan */
+    }
+
+    .feedback-message.correct {
+      color: #28a745; /* Hijau */
+    }
+
+    .feedback-message.wrong {
+      color: #dc3545; /* Merah */
+    }
+
+    .score {
+        font-size: 1.2em;
+        text-align: center;
+        margin-top: 10px;
+    }
+
+    .reset-button {
+        display: block;
+        width: fit-content;
+        margin: 20px auto;
+        padding: 10px 20px;
+        background-color: #007bff;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        font-size: 1.1em;
+        cursor: pointer;
+        transition: background-color 0.2s;
+    }
+    .reset-button:hover {
+        background-color: #0056b3;
+    }
+
+  </style>
 </head>
 <body>
   <header>
@@ -12,8 +103,146 @@
     <p>Cocokkan nama warna dengan warnanya!</p>
   </header>
   <main class="container">
-    <p>(Game ini dalam pengembangan)</p>
+    <div class="score">Skor: <span id="current-score">0</span></div>
+    <div class="color-grid" id="game-grid">
+      </div>
+    <div class="feedback-message" id="feedback"></div>
+    <button class="reset-button" id="reset-game-btn" style="display: none;">Main Lagi</button>
     <a class="link-btn" href="../index.html">⬅️ Kembali ke Beranda</a>
   </main>
+
+  <script>
+    const colors = [
+      { name: "MERAH", value: "#FF0000" },
+      { name: "BIRU", value: "#0000FF" },
+      { name: "KUNING", value: "#FFFF00" },
+      { name: "HIJAU", value: "#008000" },
+      { name: "UNGU", value: "#800080" },
+      { name: "ORANYE", value: "#FFA500" }
+    ];
+
+    let currentCards = [];
+    let selectedCards = [];
+    let score = 0;
+    const scoreElement = document.getElementById('current-score');
+    const gameGrid = document.getElementById('game-grid');
+    const feedbackElement = document.getElementById('feedback');
+    const resetButton = document.getElementById('reset-game-btn');
+
+    function shuffleArray(array) {
+      for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+      }
+      return array;
+    }
+
+    function createGame() {
+      score = 0;
+      scoreElement.textContent = score;
+      feedbackElement.textContent = '';
+      feedbackElement.className = 'feedback-message'; // Reset classes
+      resetButton.style.display = 'none';
+
+      gameGrid.innerHTML = ''; // Bersihkan grid
+
+      currentCards = [];
+      selectedCards = [];
+
+      // Pilih 3 warna acak untuk putaran ini
+      const roundColors = shuffleArray([...colors]).slice(0, 3);
+      
+      const allCards = [];
+      roundColors.forEach(color => {
+        allCards.push({ type: 'text', value: color.name, correctId: color.name });
+        allCards.push({ type: 'color', value: color.value, correctId: color.name });
+      });
+
+      shuffleArray(allCards); // Acak semua kartu (nama dan warna)
+
+      allCards.forEach(cardData => {
+        const button = document.createElement('button');
+        button.classList.add('color-button');
+        button.dataset.correctId = cardData.correctId;
+
+        if (cardData.type === 'text') {
+          button.classList.add('text');
+          button.textContent = cardData.value;
+        } else {
+          // Tambahkan kelas CSS berdasarkan warna untuk styling border/text color di CSS
+          const colorNameClass = cardData.correctId.toLowerCase(); // contoh: "merah"
+          button.classList.add(`color-${colorNameClass}`);
+        }
+        button.style.backgroundColor = cardData.value;
+        
+        button.addEventListener('click', () => handleCardClick(button, cardData.correctId));
+        gameGrid.appendChild(button);
+        currentCards.push(button);
+      });
+    }
+
+    function handleCardClick(button, correctId) {
+      if (selectedCards.length < 2 && !button.classList.contains('selected')) {
+        button.classList.add('selected');
+        selectedCards.push({ button: button, id: correctId });
+
+        if (selectedCards.length === 2) {
+          // Nonaktifkan semua tombol sementara memeriksa kecocokan
+          currentCards.forEach(btn => btn.style.pointerEvents = 'none'); 
+
+          setTimeout(() => {
+            checkMatch();
+            // Aktifkan kembali tombol setelah pengecekan (kecuali yang sudah match)
+            currentCards.forEach(btn => {
+                if (!btn.classList.contains('matched')) {
+                    btn.style.pointerEvents = 'auto';
+                }
+            });
+          }, 800); // Tunggu sebentar agar anak bisa melihat pilihan
+        }
+      }
+    }
+
+    function checkMatch() {
+      const [card1, card2] = selectedCards;
+
+      if (card1.id === card2.id && card1.button !== card2.button) { // Pastikan bukan tombol yang sama
+        feedbackElement.textContent = '🥳 Benar!';
+        feedbackElement.classList.remove('wrong');
+        feedbackElement.classList.add('correct');
+        
+        card1.button.classList.add('matched');
+        card2.button.classList.add('matched');
+        card1.button.style.pointerEvents = 'none'; // Nonaktifkan tombol yang sudah cocok
+        card2.button.style.pointerEvents = 'none';
+        
+        score += 10;
+        scoreElement.textContent = score;
+
+      } else {
+        feedbackElement.textContent = '😞 Salah, coba lagi!';
+        feedbackElement.classList.remove('correct');
+        feedbackElement.classList.add('wrong');
+      }
+
+      // Hapus kelas 'selected' setelah pengecekan
+      card1.button.classList.remove('selected');
+      card2.button.classList.remove('selected');
+      selectedCards = [];
+
+      // Cek apakah semua sudah cocok
+      if (document.querySelectorAll('.color-button:not(.matched)').length === 0) {
+        feedbackElement.textContent = '🎉 Hebat, kamu menyelesaikan semua warna!';
+        feedbackElement.classList.remove('wrong');
+        feedbackElement.classList.add('correct');
+        resetButton.style.display = 'block';
+      }
+    }
+
+    resetButton.addEventListener('click', createGame);
+
+    // Inisialisasi game saat halaman dimuat
+    createGame();
+  </script>
 </body>
 </html>
